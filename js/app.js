@@ -105,7 +105,8 @@
      =================================================================== */
   const COL = { navy: '#1b2a41', teal: '#0e7c86', red: '#c0392b', green: '#1e8449', blue: '#2e86c1', blueDark: '#1b4f72', blueLight: '#a9cce3', redBar: '#e74c3c', greenBar: '#27ae60' };
   const PLANT_COLORS = ['#1b4f72', '#2e86c1', '#48c9b0', '#f5b041', '#af7ac5', '#e67e22', '#7f8c8d', '#c0392b'];
-  let D = null;                 // loaded JSON
+    let D = null;                 // loaded JSON
+  let ZONE = 'sinter';           // 'sinter' | 'mill'
   const S = { year: null, plant: 'ALL', month: 0, kpi: 'SolidFuel' };
   const charts = {};
 
