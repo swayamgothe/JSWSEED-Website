@@ -120,7 +120,15 @@
   const pctPlain = (n, d = 0) => (n * 100).toFixed(d) + '%';
   const cls = (v, eps = 0.05) => v > eps ? 'bad' : v < -eps ? 'good' : '';
   const CO2 = 'CO₂';
-
+/* ---------- zone helpers ---------- */
+  function zoneData() {
+    // supports both old single-zone JSON and new multi-zone JSON
+    if (D.zones) return D.zones[ZONE];
+    return D; // fallback for old sinter-only file
+  }
+  function activeContributors() { return zoneData().contributors || D.contributors; }
+  function activeKpis()         { return zoneData().kpis || D.kpis; }
+  function activeYears()        { return zoneData().years || D.years; }
   /* ---------- model ---------- */
   const yearObj = () => D.years.find(y => y.id === S.year);
   const plantKeys = () => Object.keys(yearObj().plants);
