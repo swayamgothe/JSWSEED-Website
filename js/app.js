@@ -581,19 +581,32 @@
   /* ===================================================================
      SELECTORS + START
      =================================================================== */
-  function fillSelectors() {
-    $('selYear').innerHTML = D.years.map(y => `<option value="${esc(y.id)}">${esc(y.label)}</option>`).join('');
-    $('selYear').value = S.year;
-    $('selKpi').innerHTML = D.kpis.map(k => `<option value="${esc(k.key)}">${esc(k.name)}</option>`).join('');
+   function fillSelectors() {
+    const years = activeYears();
+    $('selYear').innerHTML = years.map(y => `<option value="${esc(y.id)}">${esc(y.label)}</option>`).join('');
+    $('selYear').value = S.year || years[years.length - 1].id;
+    S.year = $('selYear').value;
+
+    $('selKpi').innerHTML = activeKpis().map(k => `<option value="${esc(k.key)}">${esc(k.name)}</option>`).join('');
+    // keep previous KPI if it still exists, otherwise first one
+    if (!activeKpis().some(k => k.key === S.kpi)) S.kpi = activeKpis()[0]?.key || '';
     $('selKpi').value = S.kpi;
+
     fillYearDependent();
   }
+
   function fillYearDependent() {
     const y = yearObj();
-    $('selPlant').innerHTML = '<option value="ALL">All Plants</option>' + Object.keys(y.plants).map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+    if (!y) return;
+    const plants = Object.keys(y.plants);
+    $('selPlant').innerHTML = '<option value="ALL">All Plants</option>' +
+      plants.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
     if (S.plant !== 'ALL' && !y.plants[S.plant]) S.plant = 'ALL';
     $('selPlant').value = S.plant;
-    $('selMonth').innerHTML = y.months.map((m, i) => `<option value="${i}">${esc(m)}${agg(Object.keys(y.plants), i).has ? '' : '  (no data yet)'}</option>`).join('');
+
+    $('selMonth').innerHTML = y.months.map((m, i) =>
+      `<option value="${i}">${esc(m)}${agg(plants, i).has ? '' : '  (no data yet)'}</option>`
+    ).join('');
     $('selMonth').value = String(S.month);
   }
 
@@ -616,14 +629,45 @@
       if (D.meta.subtitle) $('subtitle').textContent = D.meta.subtitle + ' · ' + CO2 + ' intensity = kg ' + CO2 + ' per tonne of net sinter · Lower is better';
       $('footer').textContent = 'Source: ' + (D.meta.source || '') + (D.meta.updated ? '  ·  Data updated ' + D.meta.updated : '');
     }
-    S.year = D.years[D.years.length - 1].id;
+       S.year = activeYears()[activeYears().length - 1].id;
     S.month = latestMonth();
     fillSelectors();
-    $('selYear').addEventListener('change', e => { S.year = e.target.value; S.month = Math.min(S.month, yearObj().months.length - 1); fillYearDependent(); S.month = latestMonth(); $('selMonth').value = String(S.month); render(); });
+
+    // Zone selector
+    $('selZone').addEventListener('change', e => {
+      ZONE = e.target.value;
+      const years = activeYears();
+      S.year = years[years.length - 1].id;
+      S.plant = 'ALL';
+      S.month = 0;
+      S.kpi = activeKpis()[0]?.key || '';
+      fillSelectors();
+      S.month = latestMonth();
+      $('selMonth').value = String(S.month);
+
+      // update subtitle
+      const zd = zoneData();
+      const meta = zd.meta || D.meta || {};
+      $('subtitle').textContent = (meta.subtitle || '') + ' · ' + CO2 + ' intensity = ' + (meta.unit || '') + ' · Lower is better';
+      if (meta.source || D.meta?.source) {
+        $('footer').textContent = 'Source: ' + (meta.source || D.meta?.source || '') +
+          (meta.updated || D.meta?.updated ? '  ·  Data updated ' + (meta.updated || D.meta.updated) : '');
+      }
+      render();
+    });
+
+    $('selYear').addEventListener('change', e => {
+      S.year = e.target.value;
+      S.month = Math.min(S.month, yearObj().months.length - 1);
+      fillYearDependent();
+      S.month = latestMonth();
+      $('selMonth').value = String(S.month);
+      render();
+    });
     $('selPlant').addEventListener('change', e => { S.plant = e.target.value; render(); });
     $('selMonth').addEventListener('change', e => { S.month = +e.target.value; render(); });
     $('selKpi').addEventListener('change', e => { S.kpi = e.target.value; render(); });
-    render();
+    render(); 
   }
 
   document.addEventListener('DOMContentLoaded', function () {
