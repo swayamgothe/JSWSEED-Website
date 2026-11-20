@@ -105,8 +105,7 @@
      =================================================================== */
   const COL = { navy: '#1b2a41', teal: '#0e7c86', red: '#c0392b', green: '#1e8449', blue: '#2e86c1', blueDark: '#1b4f72', blueLight: '#a9cce3', redBar: '#e74c3c', greenBar: '#27ae60' };
   const PLANT_COLORS = ['#1b4f72', '#2e86c1', '#48c9b0', '#f5b041', '#af7ac5', '#e67e22', '#7f8c8d', '#c0392b'];
-    let D = null;                 // loaded JSON
-  let ZONE = 'sinter';           // 'sinter' | 'mill'
+  let D = null;                 // loaded JSON
   const S = { year: null, plant: 'ALL', month: 0, kpi: 'SolidFuel' };
   const charts = {};
 
@@ -120,15 +119,7 @@
   const pctPlain = (n, d = 0) => (n * 100).toFixed(d) + '%';
   const cls = (v, eps = 0.05) => v > eps ? 'bad' : v < -eps ? 'good' : '';
   const CO2 = 'CO₂';
-/* ---------- zone helpers ---------- */
-  function zoneData() {
-    // supports both old single-zone JSON and new multi-zone JSON
-    if (D.zones) return D.zones[ZONE];
-    return D; // fallback for old sinter-only file
-  }
-  function activeContributors() { return zoneData().contributors || D.contributors; }
-  function activeKpis()         { return zoneData().kpis || D.kpis; }
-  function activeYears()        { return zoneData().years || D.years; }
+
   /* ---------- model ---------- */
   const yearObj = () => D.years.find(y => y.id === S.year);
   const plantKeys = () => Object.keys(yearObj().plants);
@@ -581,32 +572,19 @@
   /* ===================================================================
      SELECTORS + START
      =================================================================== */
-   function fillSelectors() {
-    const years = activeYears();
-    $('selYear').innerHTML = years.map(y => `<option value="${esc(y.id)}">${esc(y.label)}</option>`).join('');
-    $('selYear').value = S.year || years[years.length - 1].id;
-    S.year = $('selYear').value;
-
-    $('selKpi').innerHTML = activeKpis().map(k => `<option value="${esc(k.key)}">${esc(k.name)}</option>`).join('');
-    // keep previous KPI if it still exists, otherwise first one
-    if (!activeKpis().some(k => k.key === S.kpi)) S.kpi = activeKpis()[0]?.key || '';
+  function fillSelectors() {
+    $('selYear').innerHTML = D.years.map(y => `<option value="${esc(y.id)}">${esc(y.label)}</option>`).join('');
+    $('selYear').value = S.year;
+    $('selKpi').innerHTML = D.kpis.map(k => `<option value="${esc(k.key)}">${esc(k.name)}</option>`).join('');
     $('selKpi').value = S.kpi;
-
     fillYearDependent();
   }
-
   function fillYearDependent() {
     const y = yearObj();
-    if (!y) return;
-    const plants = Object.keys(y.plants);
-    $('selPlant').innerHTML = '<option value="ALL">All Plants</option>' +
-      plants.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+    $('selPlant').innerHTML = '<option value="ALL">All Plants</option>' + Object.keys(y.plants).map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
     if (S.plant !== 'ALL' && !y.plants[S.plant]) S.plant = 'ALL';
     $('selPlant').value = S.plant;
-
-    $('selMonth').innerHTML = y.months.map((m, i) =>
-      `<option value="${i}">${esc(m)}${agg(plants, i).has ? '' : '  (no data yet)'}</option>`
-    ).join('');
+    $('selMonth').innerHTML = y.months.map((m, i) => `<option value="${i}">${esc(m)}${agg(Object.keys(y.plants), i).has ? '' : '  (no data yet)'}</option>`).join('');
     $('selMonth').value = String(S.month);
   }
 
@@ -629,45 +607,14 @@
       if (D.meta.subtitle) $('subtitle').textContent = D.meta.subtitle + ' · ' + CO2 + ' intensity = kg ' + CO2 + ' per tonne of net sinter · Lower is better';
       $('footer').textContent = 'Source: ' + (D.meta.source || '') + (D.meta.updated ? '  ·  Data updated ' + D.meta.updated : '');
     }
-       S.year = activeYears()[activeYears().length - 1].id;
+    S.year = D.years[D.years.length - 1].id;
     S.month = latestMonth();
     fillSelectors();
-
-    // Zone selector
-    $('selZone').addEventListener('change', e => {
-      ZONE = e.target.value;
-      const years = activeYears();
-      S.year = years[years.length - 1].id;
-      S.plant = 'ALL';
-      S.month = 0;
-      S.kpi = activeKpis()[0]?.key || '';
-      fillSelectors();
-      S.month = latestMonth();
-      $('selMonth').value = String(S.month);
-
-      // update subtitle
-      const zd = zoneData();
-      const meta = zd.meta || D.meta || {};
-      $('subtitle').textContent = (meta.subtitle || '') + ' · ' + CO2 + ' intensity = ' + (meta.unit || '') + ' · Lower is better';
-      if (meta.source || D.meta?.source) {
-        $('footer').textContent = 'Source: ' + (meta.source || D.meta?.source || '') +
-          (meta.updated || D.meta?.updated ? '  ·  Data updated ' + (meta.updated || D.meta.updated) : '');
-      }
-      render();
-    });
-
-    $('selYear').addEventListener('change', e => {
-      S.year = e.target.value;
-      S.month = Math.min(S.month, yearObj().months.length - 1);
-      fillYearDependent();
-      S.month = latestMonth();
-      $('selMonth').value = String(S.month);
-      render();
-    });
+    $('selYear').addEventListener('change', e => { S.year = e.target.value; S.month = Math.min(S.month, yearObj().months.length - 1); fillYearDependent(); S.month = latestMonth(); $('selMonth').value = String(S.month); render(); });
     $('selPlant').addEventListener('change', e => { S.plant = e.target.value; render(); });
     $('selMonth').addEventListener('change', e => { S.month = +e.target.value; render(); });
     $('selKpi').addEventListener('change', e => { S.kpi = e.target.value; render(); });
-    render(); 
+    render();
   }
 
   document.addEventListener('DOMContentLoaded', function () {
