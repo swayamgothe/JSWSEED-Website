@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSW SEED Monthly tracking Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="dashboard">
+
+  <!-- ===== HEADER ===== -->
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/jsw-logo.png" alt="JSW"
+           onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
+      <div class="logo-fallback" id="logoFallback">JSW</div>
+      <div>
+        <h1>JSW SEED Monthly tracking Dashboard</h1>
+        <p id="subtitle">Sinter Plant CO₂ tracking · CO₂ intensity = kg CO₂ per tonne of net sinter · Lower is better</p>
+      </div>
+    </div>
+    <div class="userbox">
+      <div class="avatar" id="avatar">U</div>
+      <span id="userEmail"></span>
+      <button class="btn-logout" id="logoutBtn">Sign out</button>
+    </div>
+  </header>
+
+  <!-- ===== SELECTORS ===== -->
+  <section class="selectors" id="selectors">
+    <div class="sel"><label for="selYear">① Year</label><select id="selYear"></select></div>
+    <div class="sel"><label for="selPlant">② Plant</label><select id="selPlant"></select></div>
+    <div class="sel"><label for="selMonth">③ Month</label><select id="selMonth"></select></div>
+    <div class="sel-tip">Tip: change the yellow boxes – every number, chart and explanation below updates.</div>
+  </section>
+  <div class="status-line" id="statusLine"></div>
+
+  <main id="app">
+
+    <!-- 1 HEADLINE -->
+    <div class="section-bar" id="h1"></div>
+    <div class="cards" id="cards"></div>
+
+    <!-- 2 TREND -->
+    <div class="section-bar" id="h2"></div>
+    <div class="grid2">
+      <div class="box"><h3>CO₂ intensity vs target (lower is better)</h3><div class="chart-wrap"><canvas id="chIntensity"></canvas></div></div>
+      <div class="box"><h3>Total CO₂ emitted each month (tonnes)</h3><div class="chart-wrap"><canvas id="chTotal"></canvas></div></div>
+    </div>
+    <div class="box" style="margin-top:16px">
+      <h3 id="yoyTitle">Year-on-year CO₂ intensity</h3>
+      <div class="chart-wrap" style="height:280px"><canvas id="chYoy"></canvas></div>
+      <p class="note" id="yoyNote"></p>
+    </div>
+
+    <!-- 3 COMPOSITION -->
+    <div class="section-bar" id="h3"></div>
+    <div class="grid2">
+      <div class="box"><h3>CO₂ intensity split by source, month by month (kg/t)</h3><div class="chart-wrap tall"><canvas id="chStack"></canvas></div></div>
+      <div class="box"><h3>Share of emissions by source – selected month</h3><div class="chart-wrap tall"><canvas id="chPie"></canvas></div></div>
+    </div>
+
+    <!-- 4 GAP ANALYSIS -->
+    <div class="section-bar" id="h4"></div>
+    <div class="narr main" id="narr1"></div>
+    <div class="narr" id="narr2"></div>
+    <div class="howto">How to read: <span class="r">▲ red = CO₂ went UP (bad)</span> &nbsp; <span class="g">▼ green = CO₂ went DOWN (good)</span> &nbsp; Red bars to the right = adding CO₂, green bars to the left = saving CO₂. Units: kg CO₂ per tonne of sinter.</div>
+    <div class="grid2">
+      <div class="box"><h3>What moved CO₂ vs LAST MONTH? (kg/t change by source)</h3><div class="chart-wrap"><canvas id="chDelta"></canvas></div></div>
+      <div class="box"><h3>What is driving the gap vs TARGET? (kg/t above / below target)</h3><div class="chart-wrap"><canvas id="chGap"></canvas></div></div>
+    </div>
+    <div class="table-wrap" style="margin-top:16px">
+      <table id="gapTable"></table>
+    </div>
+    <div class="remarks-head">WHAT THE PLANT TEAM REPORTED <span style="font-weight:400">(from the “Positive &amp; Negative Gap Analysis” sheet – shown for a single plant)</span></div>
+    <div class="remarks" id="remarks"></div>
+
+    <!-- 5 KPI -->
+    <div class="section-bar" id="h5"></div>
+    <div class="kpi-layout">
+      <div>
+        <div class="table-wrap"><table id="kpiTable"></table></div>
+        <p class="note">● On target = KPI is at or better than its FY target. For every KPI lower is better, except Steam recovery where higher is better. “–” = no data or no target defined.</p>
+      </div>
+      <div class="box">
+        <div class="kpi-pick"><label for="selKpi">④ PICK KPI TO TREND</label><select id="selKpi"></select></div>
+        <div class="chart-wrap"><canvas id="chKpi"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 6 PLANTS -->
+    <div class="section-bar" id="h6"></div>
+    <div class="table-wrap"><table id="plantTable"></table></div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="box"><h3>Total CO₂ emitted by each plant (tonnes per month)</h3><div class="chart-wrap"><canvas id="chPlantStack"></canvas></div></div>
+      <div class="box"><h3>CO₂ intensity by plant vs its target – selected month</h3><div class="chart-wrap"><canvas id="chPlantInt"></canvas></div></div>
+    </div>
+
+    <p class="note" style="margin-top:24px">
+      Notes: (1) Total CO₂ = sum of all sources in each plant sheet; intensity = CO₂ ÷ net sinter × 1000. (2) “All Plants” is production-weighted (total CO₂ ÷ total sinter).
+      (3) Targets are FY targets weighted by the plan tonnage. (4) Intensity charts zoom the vertical axis so small differences are visible.
+    </p>
+  </main>
+
+  <footer id="footer"></footer>
+
+  <!-- Chart.js (pinned version) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
