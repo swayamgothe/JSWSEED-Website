@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reset password | JSW SEED Monthly tracking Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page" data-page="reset">
+
+  <div class="login-card">
+    <div class="login-head">
+      <div class="login-logos">
+        <img src="assets/jsw-logo.png" alt="JSW" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-badge',textContent:'JSW'}))">
+        <img src="assets/seed-logo.png" alt="SEED" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-badge',textContent:'SEED'}))">
+      </div>
+      <h1>JSW SEED Monthly tracking Dashboard</h1>
+      <p>Sustainability · Energy · Environment &amp; Decarbonization</p>
+    </div>
+    <div class="login-bar"></div>
+
+    <div class="login-body" style="padding-top:22px">
+      <div class="login-msg" id="msg" role="alert" style="display:none"></div>
+      <p class="hint" id="waiting">Checking your reset link…</p>
+      <form class="login" id="formReset" style="display:none" novalidate>
+        <p class="hint">Choose a new password for your account.</p>
+        <div class="field"><label for="rpPassword">New password</label>
+          <div class="pw-wrap"><input type="password" id="rpPassword" placeholder="At least 8 characters, letters + numbers" autocomplete="new-password" required>
+            <button type="button" id="rpToggle" aria-label="Show or hide password">Show</button></div></div>
+        <div class="field"><label for="rpPassword2">Confirm new password</label>
+          <input type="password" id="rpPassword2" placeholder="Type the password again" autocomplete="new-password" required></div>
+        <button type="submit" class="btn-primary" id="rpBtn">Save new password</button>
+      </form>
+      <div class="row" id="newLink" style="display:none;justify-content:center;margin-top:14px"><a class="link-btn" href="login.html">Request a new link</a></div>
+    </div>
+    <div class="login-foot">Authorised JSW users only · company email required</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
