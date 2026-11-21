@@ -52,7 +52,12 @@
   }
 
   window.loadDashboardData = async function () {
-    const cfg = window.SUPABASE_CONFIG || {};
+    const cfg0 = window.SUPABASE_CONFIG || {};
+    // clean the pasted values: remove spaces, trailing '/', and a pasted '/rest/v1'
+    const cfg = Object.assign({}, cfg0, {
+      url: String(cfg0.url || '').trim().replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, ''),
+      anonKey: String(cfg0.anonKey || '').trim()
+    });
     if (!cfg.url || !cfg.anonKey) {                    // not configured -> old behaviour (local JSON file)
       const res = await fetch('dashboard_data.json', { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
