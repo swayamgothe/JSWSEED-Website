@@ -1,11 +1,4 @@
-// ==========================================
-// 1. SUPABASE CONNECTION
-// ==========================================
-const SUPABASE_URL = 'https://pzwyafpmxiwcftafslow.supabase.co/rest/v1/';
-// REPLACE THIS WITH YOUR ACTUAL PUBLISHABLE KEY
-const SUPABASE_KEY = 'sb_publishable_qz8kcS-0416AZB_33ezxcA_h03YPQ5n'; 
-
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);/* =====================================================================
+/* =====================================================================
    JSW SEED Monthly tracking Dashboard  -  app.js
    One file for BOTH pages:
      login.html  (data-page="login")      -> email + password sign-in
